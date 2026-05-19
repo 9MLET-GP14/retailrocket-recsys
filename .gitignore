@@ -29,3 +29,4 @@ mlartifacts/
 
 # Docker
 *.log
+.coverage
