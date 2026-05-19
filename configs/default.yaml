@@ -1,0 +1,24 @@
+# Default experiment configuration
+# Override via .env or environment variables
+
+model:
+  type: embedding_mlp
+  embedding_dim: 64
+  hidden_dims: [256, 128, 64]
+  dropout: 0.3
+
+training:
+  learning_rate: 0.001
+  batch_size: 512
+  max_epochs: 50
+  early_stopping_patience: 5
+  seed: 42
+
+data:
+  min_user_interactions: 5
+  min_item_interactions: 5
+  val_size: 0.1
+  test_size: 0.1
+
+evaluation:
+  top_k: 10
