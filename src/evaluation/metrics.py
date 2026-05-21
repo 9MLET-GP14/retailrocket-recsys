@@ -4,9 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def precision_at_k(
-    recommended: list[int], relevant: set[int], k: int
-) -> float:
+def precision_at_k(recommended: list[int], relevant: set[int], k: int) -> float:
     """Fraction of top-K recommendations that are relevant.
 
     Args:
@@ -22,9 +20,7 @@ def precision_at_k(
     return hits / k
 
 
-def recall_at_k(
-    recommended: list[int], relevant: set[int], k: int
-) -> float:
+def recall_at_k(recommended: list[int], relevant: set[int], k: int) -> float:
     """Fraction of relevant items found in top-K recommendations.
 
     Args:
@@ -42,9 +38,7 @@ def recall_at_k(
     return hits / len(relevant)
 
 
-def ndcg_at_k(
-    recommended: list[int], relevant: set[int], k: int
-) -> float:
+def ndcg_at_k(recommended: list[int], relevant: set[int], k: int) -> float:
     """Normalized Discounted Cumulative Gain at K.
 
     Args:
@@ -56,19 +50,13 @@ def ndcg_at_k(
         NDCG@K score in [0, 1].
     """
     top_k = recommended[:k]
-    dcg = sum(
-        1.0 / np.log2(i + 2)
-        for i, item in enumerate(top_k)
-        if item in relevant
-    )
+    dcg = sum(1.0 / np.log2(i + 2) for i, item in enumerate(top_k) if item in relevant)
     ideal_hits = min(len(relevant), k)
     idcg = sum(1.0 / np.log2(i + 2) for i in range(ideal_hits))
     return dcg / idcg if idcg > 0 else 0.0
 
 
-def hit_rate_at_k(
-    recommended: list[int], relevant: set[int], k: int
-) -> float:
+def hit_rate_at_k(recommended: list[int], relevant: set[int], k: int) -> float:
     """Whether at least one relevant item appears in top-K.
 
     Args:
@@ -101,10 +89,12 @@ def compute_all_metrics(
     results: list[dict[str, float]] = []
     for user_id, recommended in user_recommendations.items():
         relevant = user_ground_truth.get(user_id, set())
-        results.append({
-            f"precision@{k}": precision_at_k(recommended, relevant, k),
-            f"recall@{k}": recall_at_k(recommended, relevant, k),
-            f"ndcg@{k}": ndcg_at_k(recommended, relevant, k),
-            f"hit_rate@{k}": hit_rate_at_k(recommended, relevant, k),
-        })
+        results.append(
+            {
+                f"precision@{k}": precision_at_k(recommended, relevant, k),
+                f"recall@{k}": recall_at_k(recommended, relevant, k),
+                f"ndcg@{k}": ndcg_at_k(recommended, relevant, k),
+                f"hit_rate@{k}": hit_rate_at_k(recommended, relevant, k),
+            }
+        )
     return pd.DataFrame(results).mean().to_frame(name="mean_score")

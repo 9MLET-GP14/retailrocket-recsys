@@ -31,3 +31,4 @@ mlartifacts/
 *.log
 .coverage
 .coverage
+.coverage
