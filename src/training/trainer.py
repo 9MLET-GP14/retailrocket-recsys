@@ -1,11 +1,16 @@
 """Training loop with early stopping and MLflow tracking."""
 
+import logging
+
 import mlflow
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from src.config import settings
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
 class EarlyStopping:
@@ -17,6 +22,12 @@ class EarlyStopping:
     """
 
     def __init__(self, patience: int = 5, min_delta: float = 1e-4) -> None:
+        """Initialize EarlyStopping.
+
+        Args:
+            patience: Epochs to wait before stopping.
+            min_delta: Minimum improvement to count as progress.
+        """
         self._patience = patience
         self._min_delta = min_delta
         self._counter = 0
@@ -121,6 +132,8 @@ def run_training(
         Trained model with best validation loss weights.
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info("Training on device: %s", device)
+
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=settings.learning_rate)
     criterion = nn.MSELoss()
@@ -136,29 +149,40 @@ def run_training(
         for epoch in range(1, settings.max_epochs + 1):
             train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
             val_loss = evaluate_epoch(model, val_loader, criterion, device)
-            mlflow.log_metrics({"train_loss": train_loss, "val_loss": val_loss}, step=epoch)
+            mlflow.log_metrics(
+                {"train_loss": train_loss, "val_loss": val_loss}, step=epoch
+            )
+            logger.info(
+                "Epoch %03d | train_loss: %.4f | val_loss: %.4f",
+                epoch,
+                train_loss,
+                val_loss,
+            )
             early_stopping.step(val_loss)
             if early_stopping._counter == 0:
                 best_weights = model.state_dict().copy()
             if early_stopping.should_stop:
-                print(f"Early stopping at epoch {epoch}")
+                logger.info("Early stopping triggered at epoch %d", epoch)
                 break
 
         model.load_state_dict(best_weights)
         mlflow.pytorch.log_model(model, artifact_path="model")
+        logger.info("Training complete. Model logged to MLflow.")
 
     return model
 
 
 def _log_hyperparams() -> None:
     """Log all relevant hyperparameters to the active MLflow run."""
-    mlflow.log_params({
-        "embedding_dim": settings.embedding_dim,
-        "hidden_dims": settings.hidden_dims,
-        "dropout": settings.dropout,
-        "learning_rate": settings.learning_rate,
-        "batch_size": settings.batch_size,
-        "max_epochs": settings.max_epochs,
-        "early_stopping_patience": settings.early_stopping_patience,
-        "seed": settings.seed,
-    })
+    mlflow.log_params(
+        {
+            "embedding_dim": settings.embedding_dim,
+            "hidden_dims": settings.hidden_dims,
+            "dropout": settings.dropout,
+            "learning_rate": settings.learning_rate,
+            "batch_size": settings.batch_size,
+            "max_epochs": settings.max_epochs,
+            "early_stopping_patience": settings.early_stopping_patience,
+            "seed": settings.seed,
+        }
+    )

@@ -30,3 +30,4 @@ mlartifacts/
 # Docker
 *.log
 .coverage
+.coverage
