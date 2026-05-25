@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11, <3.13"
 torch = "^2.3"
 scikit-learn = "^1.5"
 mlflow = "^2.13"
