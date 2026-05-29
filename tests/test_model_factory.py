@@ -3,7 +3,12 @@
 import pytest
 import torch
 
-from src.models.factory import EmbeddingMLPRecommender, MLPRecommender, ModelFactory, ModelType
+from src.models.factory import (
+    EmbeddingMLPRecommender,
+    MLPRecommender,
+    ModelFactory,
+    ModelType,
+)
 
 
 def test_factory_creates_mlp() -> None:

@@ -14,14 +14,17 @@ from src.evaluation.metrics import (
 
 # ─── Preprocessor Tests ───────────────────────────────────────────────────────
 
+
 @pytest.fixture()
 def sample_events() -> pd.DataFrame:
     """Sample events DataFrame for testing."""
-    return pd.DataFrame({
-        "visitorid": [1, 1, 1, 2, 2, 3],
-        "itemid":    [10, 10, 20, 10, 30, 40],
-        "event":     ["view", "addtocart", "view", "transaction", "view", "view"],
-    })
+    return pd.DataFrame(
+        {
+            "visitorid": [1, 1, 1, 2, 2, 3],
+            "itemid": [10, 10, 20, 10, 30, 40],
+            "event": ["view", "addtocart", "view", "transaction", "view", "view"],
+        }
+    )
 
 
 def test_event_weight_preprocessor_aggregates(sample_events: pd.DataFrame) -> None:
@@ -44,6 +47,7 @@ def test_min_interactions_filter_removes_sparse(sample_events: pd.DataFrame) -> 
 
 
 # ─── Metrics Tests ────────────────────────────────────────────────────────────
+
 
 def test_precision_at_k_perfect() -> None:
     """Precision@K should be 1.0 when all recommendations are relevant."""

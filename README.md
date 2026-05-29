@@ -11,7 +11,7 @@ Sistema de recomendação de produtos baseado no comportamento de navegação de
 | Tracking | MLflow |
 | Versionamento | DVC |
 | Container | Docker multi-stage |
-| Deps | Poetry |
+| Deps | uv |
 
 ## Estrutura
 
@@ -42,32 +42,39 @@ retailrocket-recsys/
 
 ## Quickstart
 
-```bash
-# 1. Instalar dependências
-poetry install
+### 1. Instalar dependências (via uv)
+Certifique-se de ter o `uv` instalado. Se não tiver, instale com `curl -LsSf https://astral.sh/uv/install.sh | sh`.
 
-# 2. Validar ambiente
+```bash
+# Criar ambiente virtual e instalar dependências
+uv venv
+source venv/bin/activate
+uv pip install -e .
+
+2. Validar ambiente
+Bash
 python scripts/validate_env.py
 
-# 3. Configurar variáveis
+3. Configurar variáveis
+Bash
 cp .env.example .env
 
-# 4. Reproduzir pipeline
+4. Executar Testes e Qualidade
+Bash
+# Rodar testes com cobertura
+pytest -v --cov=src --cov-report=term-missing
+
+5. Reproduzir pipeline (DVC )
+Bash
 dvc repro
 
-# 5. Ver experimentos
+6. Ver experimentos
+Bash
 mlflow ui
-```
-
-## Pipeline DVC
-
-```
-preprocess → feature_eng → train → evaluate
-```
-
-## Métricas principais
-
-- Precision@K
-- Recall@K
-- NDCG@K
-- Hit Rate
+Pipeline DVC
+O pipeline segue o fluxo: preprocess → feature_eng → train → evaluate.
+Métricas principais
+Precision@K
+Recall@K
+NDCG@K
+Hit Rate

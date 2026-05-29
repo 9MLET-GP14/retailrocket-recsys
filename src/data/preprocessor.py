@@ -103,7 +103,7 @@ class MinInteractionsFilter(PreprocessorStrategy):
         df = df.reset_index(drop=True)
 
         logger.info(
-            "MinInteractionsFilter: %d → %d rows | " "users: %d → %d | items: %d → %d",
+            "MinInteractionsFilter: %d → %d rows | users: %d → %d | items: %d → %d",
             n_before,
             len(df),
             users_before,
