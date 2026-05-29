@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "retailrocket-recsys"
 version = "0.1.0"
 description = "E-commerce recommendation system based on RetailRocket user behavior"
-authors = [{name = "Daniel Landi"}]
+authors = [{name = "9MLET-GP14"}]
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 
