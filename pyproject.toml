@@ -45,3 +45,6 @@ convention = "google"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=src --cov-report=term-missing"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
