@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "E-commerce recommendation system based on RetailRocket user behavior"
 authors = [{name = "9MLET-GP14"}]
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11"
 
 dependencies = [
     "pydantic>=2.0",
@@ -17,9 +17,10 @@ dependencies = [
     "mlflow>=2.13",
     "dvc>=3.51",
     "pandas>=2.2",
-    "numpy>=1.26,<2.0",
+    "numpy>=1.26",
+    "scipy>=1.10",
     "python-dotenv>=1.0",
-    "torch==2.2.2",
+    "torch>=2.2",
     "yellowbrick>=1.5",
 ]
 
@@ -37,7 +38,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "ANN", "D"]
-ignore = ["D100", "D104", "ANN101"]
+ignore = ["D100", "D104"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

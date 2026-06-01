@@ -4,7 +4,6 @@
 import importlib
 import sys
 
-
 REQUIRED_PACKAGES: list[tuple[str, str]] = [
     ("torch", "PyTorch"),
     ("sklearn", "Scikit-Learn"),
@@ -47,6 +46,7 @@ def check_env_vars() -> list[str]:
         List of missing variable names.
     """
     import os
+
     from dotenv import load_dotenv
 
     load_dotenv()

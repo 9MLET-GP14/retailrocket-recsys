@@ -1,5 +1,6 @@
 """Training loop with early stopping and MLflow tracking."""
 
+import copy
 import logging
 
 import mlflow
@@ -37,6 +38,11 @@ class EarlyStopping:
     def should_stop(self) -> bool:
         """Return True if training should stop."""
         return self._counter >= self._patience
+
+    @property
+    def improved(self) -> bool:
+        """Return True if the last step produced a new best loss."""
+        return self._counter == 0
 
     def step(self, val_loss: float) -> None:
         """Update state with new validation loss.
@@ -159,8 +165,8 @@ def run_training(
                 val_loss,
             )
             early_stopping.step(val_loss)
-            if early_stopping._counter == 0:
-                best_weights = model.state_dict().copy()
+            if early_stopping.improved:
+                best_weights = copy.deepcopy(model.state_dict())
             if early_stopping.should_stop:
                 logger.info("Early stopping triggered at epoch %d", epoch)
                 break
