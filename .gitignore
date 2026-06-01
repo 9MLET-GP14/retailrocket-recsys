@@ -2,9 +2,29 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.egg
 dist/
+build/
 .venv/
+venv/
+env/
 .env
+.env.local
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.pytest_cache/
+.tox/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Linting
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # Data (managed by DVC)
 data/raw/
@@ -17,18 +37,27 @@ models/
 mlruns/
 mlartifacts/
 
-# Notebooks checkpoints
+# DVC
+.dvc/cache
+.dvc/tmp
+
+# Notebooks
 .ipynb_checkpoints/
 
 # macOS
 .DS_Store
+Thumbs.db
 
 # IDEs
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Docker
+# Logs & Coverage
 *.log
 .coverage
-.coverage
-.coverage
+htmlcov/
+
+# Docker
+docker-compose.override.yml
