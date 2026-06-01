@@ -18,7 +18,7 @@ def test_factory_creates_mlp() -> None:
 
 
 def test_factory_creates_embedding_mlp() -> None:
-    """ModelFactory should return an EmbeddingMLPRecommender for ModelType.EMBEDDING_MLP."""
+    """Test that ModelFactory creates an EmbeddingMLPRecommender."""
     model = ModelFactory.create(
         ModelType.EMBEDDING_MLP,
         num_users=1000,
