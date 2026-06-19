@@ -125,6 +125,7 @@ def run_training(
     train_loader: DataLoader,
     val_loader: DataLoader,
     run_name: str = "embedding_mlp",
+    device: torch.device | None = None,
 ) -> nn.Module:
     """Full training loop with MLflow tracking and early stopping.
 
@@ -133,11 +134,13 @@ def run_training(
         train_loader: DataLoader for training data.
         val_loader: DataLoader for validation data.
         run_name: MLflow run name.
+        device: PyTorch device to use. Defaults to CUDA if available, else CPU.
 
     Returns:
         Trained model with best validation loss weights.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Training on device: %s", device)
 
     model = model.to(device)
