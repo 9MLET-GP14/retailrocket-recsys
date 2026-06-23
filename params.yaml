@@ -1,0 +1,24 @@
+preprocess:
+  min_user: 5
+  min_item: 5
+
+feature_eng:
+  val_size: 0.1
+  test_size: 0.1
+  seed: 42
+
+train:
+  embedding_dim: 64
+  hidden_dims: [256, 128, 64]
+  dropout: 0.3
+  learning_rate: 0.001
+  batch_size: 512
+  max_epochs: 50
+  early_stopping_patience: 5
+  seed: 42
+
+evaluate:
+  top_k: 10
+  n_svd_components: 50
+  eval_users: 500
+  seed: 42

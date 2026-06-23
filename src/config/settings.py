@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     models_path: str = Field(default="models")
 
     # MLflow
-    mlflow_tracking_uri: str = Field(default="http://localhost:5000")
+    mlflow_tracking_uri: str = Field(default="sqlite:///mlflow.db")
     mlflow_experiment_name: str = Field(default="retailrocket-recsys")
 
     # DVC Remote

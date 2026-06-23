@@ -22,6 +22,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "torch>=2.2",
     "yellowbrick>=1.5",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -35,10 +36,11 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+extend-exclude = ["analises", "analisers"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "ANN", "D"]
-ignore = ["D100", "D104"]
+ignore = ["D100", "D104", "ANN401"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

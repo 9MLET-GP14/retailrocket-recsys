@@ -1,0 +1,41 @@
+services:
+  # ── MLflow Tracking Server ──────────────────────────────────────────────────
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.13.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:///mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --allowed-hosts mlflow:5000,localhost:5000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ── Training Job ────────────────────────────────────────────────────────────
+  training:
+    build:
+      context: .
+      target: runtime
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    env_file:
+      - .env
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    command: python scripts/train.py
+
+volumes:
+  mlflow_data:

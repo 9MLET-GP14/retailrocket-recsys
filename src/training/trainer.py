@@ -120,6 +120,70 @@ def evaluate_epoch(
     return total_loss / len(loader)
 
 
+def _setup_training(
+    model: nn.Module,
+) -> tuple[nn.Module, torch.device, torch.optim.Optimizer, nn.Module, EarlyStopping]:
+    """Move model to device and build optimizer, loss, and early stopping.
+
+    Args:
+        model: Initialized PyTorch model.
+
+    Returns:
+        Tuple of (model, device, optimizer, criterion, early_stopping).
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info("Training on device: %s", device)
+    model = model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=settings.learning_rate)
+    criterion = nn.MSELoss()
+    early_stopping = EarlyStopping(patience=settings.early_stopping_patience)
+    return model, device, optimizer, criterion, early_stopping
+
+
+def _run_epoch_loop(
+    model: nn.Module,
+    train_loader: DataLoader,
+    val_loader: DataLoader,
+    optimizer: torch.optim.Optimizer,
+    criterion: nn.Module,
+    device: torch.device,
+    early_stopping: EarlyStopping,
+) -> dict[str, torch.Tensor]:
+    """Run the epoch loop, logging metrics and tracking best weights.
+
+    Args:
+        model: Model being trained.
+        train_loader: Training DataLoader.
+        val_loader: Validation DataLoader.
+        optimizer: Optimizer instance.
+        criterion: Loss function.
+        device: CPU or CUDA device.
+        early_stopping: EarlyStopping tracker.
+
+    Returns:
+        State dict of the best-performing model weights.
+    """
+    best_weights = copy.deepcopy(model.state_dict())
+    for epoch in range(1, settings.max_epochs + 1):
+        train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
+        val_loss = evaluate_epoch(model, val_loader, criterion, device)
+        metrics = {"train_loss": train_loss, "val_loss": val_loss}
+        mlflow.log_metrics(metrics, step=epoch)
+        logger.info(
+            "Epoch %03d | train_loss: %.4f | val_loss: %.4f",
+            epoch,
+            train_loss,
+            val_loss,
+        )
+        early_stopping.step(val_loss)
+        if early_stopping.improved:
+            best_weights = copy.deepcopy(model.state_dict())
+        if early_stopping.should_stop:
+            logger.info("Early stopping triggered at epoch %d", epoch)
+            break
+    return best_weights
+
+
 def run_training(
     model: nn.Module,
     train_loader: DataLoader,
@@ -137,42 +201,26 @@ def run_training(
     Returns:
         Trained model with best validation loss weights.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Training on device: %s", device)
-
-    model = model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=settings.learning_rate)
-    criterion = nn.MSELoss()
-    early_stopping = EarlyStopping(patience=settings.early_stopping_patience)
+    model, device, optimizer, criterion, early_stopping = _setup_training(model)
 
     mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
     mlflow.set_experiment(settings.mlflow_experiment_name)
 
     with mlflow.start_run(run_name=run_name):
         _log_hyperparams()
-        best_weights = model.state_dict()
-
-        for epoch in range(1, settings.max_epochs + 1):
-            train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
-            val_loss = evaluate_epoch(model, val_loader, criterion, device)
-            mlflow.log_metrics(
-                {"train_loss": train_loss, "val_loss": val_loss}, step=epoch
-            )
-            logger.info(
-                "Epoch %03d | train_loss: %.4f | val_loss: %.4f",
-                epoch,
-                train_loss,
-                val_loss,
-            )
-            early_stopping.step(val_loss)
-            if early_stopping.improved:
-                best_weights = copy.deepcopy(model.state_dict())
-            if early_stopping.should_stop:
-                logger.info("Early stopping triggered at epoch %d", epoch)
-                break
-
+        best_weights = _run_epoch_loop(
+            model,
+            train_loader,
+            val_loader,
+            optimizer,
+            criterion,
+            device,
+            early_stopping,
+        )
         model.load_state_dict(best_weights)
-        mlflow.pytorch.log_model(model, artifact_path="model")
+        mlflow.pytorch.log_model(
+            model, artifact_path="model", serialization_format="pickle"
+        )
         logger.info("Training complete. Model logged to MLflow.")
 
     return model
