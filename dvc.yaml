@@ -1,0 +1,77 @@
+stages:
+  preprocess:
+    cmd: python scripts/preprocess.py
+    deps:
+      - scripts/preprocess.py
+      - src/data/loader.py
+      - src/data/preprocessor.py
+      - data/raw/events.csv
+    params:
+      - preprocess.min_user
+      - preprocess.min_item
+    outs:
+      - data/processed/interactions.parquet
+
+  feature_eng:
+    cmd: python scripts/feature_eng.py
+    deps:
+      - scripts/feature_eng.py
+      - src/features/engineering.py
+      - data/processed/interactions.parquet
+    params:
+      - feature_eng.val_size
+      - feature_eng.test_size
+      - feature_eng.seed
+    outs:
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+      - data/processed/metadata.json
+      - data/processed/encoders.pkl
+
+  train:
+    cmd: python scripts/train.py
+    deps:
+      - scripts/train.py
+      - src/models/factory.py
+      - src/models/dataset.py
+      - src/training/trainer.py
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/metadata.json
+    params:
+      - train.embedding_dim
+      - train.hidden_dims
+      - train.dropout
+      - train.learning_rate
+      - train.batch_size
+      - train.max_epochs
+      - train.early_stopping_patience
+      - train.seed
+    outs:
+      - models/best_model.pt
+
+  evaluate:
+    cmd: python scripts/evaluate.py
+    deps:
+      - scripts/evaluate.py
+      - src/models/baseline.py
+      - src/evaluation/metrics.py
+      - models/best_model.pt
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+      - data/processed/metadata.json
+    params:
+      - evaluate.top_k
+      - evaluate.n_svd_components
+      - evaluate.eval_users
+      - evaluate.seed
+      - train.embedding_dim
+      - train.hidden_dims
+      - train.dropout
+    metrics:
+      - data/processed/metrics.json:
+          cache: false
+    outs:
+      - data/processed/metrics_comparison.csv:
+          cache: false

@@ -27,19 +27,21 @@ htmlcov/
 dmypy.json
 
 # Data (managed by DVC)
-data/raw/
-data/processed/
+/data/raw/
+/data/processed/
 
 # Models (managed by MLflow/DVC)
-models/
+/models/
 
 # MLflow
 mlruns/
 mlartifacts/
+mlflow.db
 
 # DVC
 .dvc/cache
 .dvc/tmp
+dvc-storage/
 
 # Notebooks
 .ipynb_checkpoints/
