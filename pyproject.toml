@@ -32,6 +32,15 @@ dev = [
     "ruff>=0.4",
     "pre-commit>=3.7",
 ]
+jupyter = [
+    "ipykernel>=6.29",
+    "notebook>=7.2",
+    "jupyterlab>=4.2",
+]
+intel-gpu = [
+    "torch-directml",
+]
+
 
 [tool.ruff]
 line-length = 88

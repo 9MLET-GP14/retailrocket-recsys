@@ -56,7 +56,8 @@ def check_env_vars() -> list[str]:
         if value:
             print(f"  ✅ {var} = {value}")
         else:
-            print(f"  ⚠️  {var} — not set (will use default)")
+            print(f"  ❌ {var} — NOT SET")
+            missing.append(var)
     return missing
 
 
@@ -66,11 +67,12 @@ def main() -> None:
     missing_packages = check_packages()
 
     print("\n🔍 Checking environment variables...")
-    check_env_vars()
+    missing_env_vars = check_env_vars()
 
-    if missing_packages:
-        print(f"\n❌ Validation FAILED. Missing: {missing_packages}")
-        print("   Run: poetry install")
+    if missing_packages or missing_env_vars:
+        print(f"\n❌ Validation FAILED. Missing packages: {missing_packages}")
+        print(f"   Missing env vars: {missing_env_vars}")
+        print("   Run: uv sync --extra dev")
         sys.exit(1)
     else:
         print("\n✅ Environment is valid. Ready to run the pipeline.")
