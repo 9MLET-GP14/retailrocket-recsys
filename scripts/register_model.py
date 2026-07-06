@@ -89,7 +89,7 @@ def main() -> None:
     run_id = get_best_run_id(settings.mlflow_experiment_name)
     register_and_promote(run_id)
     logger.info(
-        "Model '%s' is now live in Production. Run `mlflow ui` to inspect.",
+        "Model '%s' is now live in Production. Open the MLflow UI to inspect.",
         MODEL_NAME,
     )
 

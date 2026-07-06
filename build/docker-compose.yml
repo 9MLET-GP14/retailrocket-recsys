@@ -1,9 +1,11 @@
+name: retailrocket-recsys
+
 services:
   # ── MLflow Tracking Server ──────────────────────────────────────────────────
   mlflow:
     image: ghcr.io/mlflow/mlflow:v3.13.0
     ports:
-      - "5000:5000"
+      - "127.0.0.1:6060:5000"
     volumes:
       - mlflow_data:/mlflow
     command: >
@@ -11,8 +13,8 @@ services:
       --host 0.0.0.0
       --port 5000
       --backend-store-uri sqlite:///mlflow/mlflow.db
-      --default-artifact-root /mlflow/artifacts
-      --allowed-hosts mlflow:5000,localhost:5000
+      --artifacts-destination /mlflow/artifacts
+      --allowed-hosts mlflow:5000,localhost:6060,127.0.0.1:6060
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 10s

@@ -157,10 +157,10 @@ O modelo é registrado com o nome **`retailrocket-embedding-mlp`**.
 
 ```bash
 # Após o treinamento, promova o melhor run para Production:
-python scripts/register_model.py
+python scripts/register_model.py   # ou: make register
 
 # Abra a interface do MLflow para inspecionar runs e o registro:
-mlflow ui
+make mlflow-up   # http://localhost:6060
 ```
 
 Ciclo de vida: `None → Staging → Production`
