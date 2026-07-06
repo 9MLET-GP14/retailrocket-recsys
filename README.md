@@ -24,27 +24,34 @@ retailrocket-recsys/
 │   ├── models/         # ModelFactory, EmbeddingMLP, baselines, Dataset
 │   ├── training/       # Train loop, EarlyStopping, MLflow tracking
 │   └── evaluation/     # Precision/Recall/NDCG/HitRate @K
-├── tests/              # pytest unit tests (≥ 80 % coverage)
+├── tests/              # pytest unit tests
 ├── scripts/
 │   ├── train.py        # Pipeline completo: load → treinar → avaliar → comparar
 │   ├── register_model.py  # Promove melhor run para Production no MLflow Registry
 │   └── validate_env.py    # Verifica pacotes e variáveis de ambiente
-├── configs/
-│   └── default.yaml    # Hiperparâmetros padrão do experimento
+├── notebooks/          # EDA e experimentos exploratórios (fora do pipeline)
 ├── data/
 │   ├── raw/            # CSVs originais do RetailRocket (gerenciados pelo DVC)
 │   └── processed/      # Artefatos intermediários e métricas
 ├── models/             # Checkpoints locais
-├── MODEL_CARD.md       # Documentação do modelo
+├── build/
+│   ├── Dockerfile          # Multi-stage: builder + runtime
+│   └── docker-compose.yml  # Serviços: training + MLflow server
+├── docs/
+│   └── model_card.md   # Documentação do modelo
 ├── dvc.yaml            # Pipeline DVC: preprocess → feature_eng → train → evaluate
-├── docker-compose.yml  # Serviços: training + MLflow server
-├── Dockerfile          # Multi-stage: builder + runtime
+├── params.yaml         # Hiperparâmetros do pipeline (fonte única, lida pelo DVC)
+├── Makefile            # Interface padrão de comandos (make help)
 ├── pyproject.toml      # Dependências prod/dev
 ├── uv.lock             # Lock file gerado por `uv lock`
+├── .python-version     # Python 3.11 (mesma versão da imagem Docker)
 └── .env.example        # Template de variáveis de ambiente
 ```
 
 ## Quickstart
+
+Todos os comandos do dia a dia estão disponíveis via `make` (rode `make help`
+para a lista completa). Os passos abaixo mostram os comandos equivalentes.
 
 ### 1. Clonar e instalar dependências
 
@@ -75,11 +82,18 @@ python scripts/validate_env.py
 
 ### 4. Baixar o dataset RetailRocket
 
-Faça o download manual em <https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset>
-e coloque os três arquivos CSV em `data/raw/`:
+```bash
+python scripts/download_data.py
+```
+
+O script baixa o dataset público via `kagglehub` (sem credenciais) e copia os
+CSVs para `data/raw/`. Alternativamente, faça o download manual em
+<https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset>
+e coloque os arquivos CSV em `data/raw/`:
 
 ```
 data/raw/
+├── category_tree.csv           # usado apenas nos notebooks de EDA
 ├── events.csv
 ├── item_properties_part1.csv
 └── item_properties_part2.csv
@@ -95,9 +109,9 @@ pytest -v --cov=src --cov-report=term-missing
 
 ```bash
 # Garanta que o MLflow Tracking Server esteja rodando:
-mlflow server --host 0.0.0.0 --port 5000 &
+make mlflow-up
 
-python scripts/train.py
+python scripts/train.py   # ou: make train
 ```
 
 O script executa o pipeline completo:
@@ -120,9 +134,8 @@ Promove automaticamente o melhor run para `Staging → Production`.
 
 ### 8. Visualizar experimentos
 
-```bash
-mlflow ui  # Abre em http://localhost:5000
-```
+O MLflow server roda em container (`make mlflow-up`) e fica disponível em
+<http://localhost:6060>.
 
 ## Métricas Avaliadas
 
@@ -170,5 +183,5 @@ pre-commit run --all-files
 
 ## Model Card
 
-Consulte [MODEL_CARD.md](MODEL_CARD.md) para arquitetura detalhada, limitações,
+Consulte [docs/model_card.md](docs/model_card.md) para arquitetura detalhada, limitações,
 vieses e instruções de uso do modelo.
