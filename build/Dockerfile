@@ -40,7 +40,6 @@ COPY --from=builder /opt/venv /opt/venv
 # Copia código-fonte, scripts e configurações
 COPY src/     ./src/
 COPY scripts/ ./scripts/
-COPY configs/ ./configs/
 COPY params.yaml ./
 
 # Diretórios de dados e modelos são montados via volume em runtime

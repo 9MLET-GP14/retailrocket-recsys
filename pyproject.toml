@@ -45,7 +45,7 @@ intel-gpu = [
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-extend-exclude = ["analises", "analisers"]
+extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "ANN", "D"]

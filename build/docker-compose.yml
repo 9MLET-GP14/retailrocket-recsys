@@ -23,13 +23,14 @@ services:
   # ── Training Job ────────────────────────────────────────────────────────────
   training:
     build:
-      context: .
+      context: ..
+      dockerfile: build/Dockerfile
       target: runtime
     volumes:
-      - ./data:/app/data
-      - ./models:/app/models
+      - ../data:/app/data
+      - ../models:/app/models
     env_file:
-      - .env
+      - ../.env
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
     depends_on:

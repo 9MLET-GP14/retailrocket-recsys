@@ -4,7 +4,6 @@ __pycache__/
 *.egg-info/
 *.egg
 dist/
-build/
 .venv/
 venv/
 env/
@@ -26,12 +25,16 @@ htmlcov/
 .dmypy.json
 dmypy.json
 
-# Data (managed by DVC)
-/data/raw/
-/data/processed/
+# Data (managed by DVC — keep folder structure, ignore contents)
+/data/raw/*
+!/data/raw/.gitkeep
+!/data/raw/*.dvc
+/data/processed/*
+!/data/processed/.gitkeep
 
-# Models (managed by MLflow/DVC)
-/models/
+# Models (managed by MLflow/DVC — keep folder structure, ignore contents)
+/models/*
+!/models/.gitkeep
 
 # MLflow
 mlruns/
