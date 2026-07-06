@@ -2164,6 +2164,35 @@ wheels = [
 ]
 
 [[package]]
+name = "kagglehub"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "kagglesdk" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b5/b9/e1bdafdcdb98e8e5354b30959ed48f4a08ca2c2dc72c968c5b38c4baa1b5/kagglehub-1.0.2.tar.gz", hash = "sha256:08abae0c1e249904003ce6f23c189166e3032220478426a552c77c2edb08b93a", size = 117457, upload-time = "2026-06-09T17:14:05.313Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/1a/6b1293d0b091905e367f86771a7122e5f7f2729ab9f0f36a1617f7ad6c05/kagglehub-1.0.2-py3-none-any.whl", hash = "sha256:ffad2d79cfda9b06848e98cb0a4a48e286285cfba4aeadadc0b8dbd9bcadd372", size = 70645, upload-time = "2026-06-09T17:14:04.04Z" },
+]
+
+[[package]]
+name = "kagglesdk"
+version = "0.1.33"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "protobuf" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/de/36/7d5cbafe4057496a950463d87a48448d8b952f8376272de6744d2281fd59/kagglesdk-0.1.33.tar.gz", hash = "sha256:d622a6df272ed9ad0b87e448fa5459bf55c1c3f801d473ac3a0787c79a7f160d", size = 193175, upload-time = "2026-07-01T18:58:56.794Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1f/f0/82256cc8a89e06ef3eba149ec0626f77468dffb896dfa80fbcc700341246/kagglesdk-0.1.33-py3-none-any.whl", hash = "sha256:4906c6cd829c592265f8eacc5599bcd594641589ba4ea93ef17b98498d6c90b6", size = 243756, upload-time = "2026-07-01T18:58:55.4Z" },
+]
+
+[[package]]
 name = "kiwisolver"
 version = "1.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -4141,6 +4170,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "dvc" },
+    { name = "kagglehub" },
     { name = "mlflow" },
     { name = "numpy" },
     { name = "pandas" },
@@ -4175,6 +4205,7 @@ requires-dist = [
     { name = "dvc", specifier = ">=3.51" },
     { name = "ipykernel", marker = "extra == 'jupyter'", specifier = ">=6.29" },
     { name = "jupyterlab", marker = "extra == 'jupyter'", specifier = ">=4.2" },
+    { name = "kagglehub", specifier = ">=0.3" },
     { name = "mlflow", specifier = ">=2.13" },
     { name = "notebook", marker = "extra == 'jupyter'", specifier = ">=7.2" },
     { name = "numpy", specifier = ">=1.26" },

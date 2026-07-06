@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     data_processed_path: str = Field(default="data/processed")
     models_path: str = Field(default="models")
 
+    # Dataset (Kaggle slug used by kagglehub)
+    kaggle_dataset_slug: str = Field(default="retailrocket/ecommerce-dataset")
+
     # MLflow
     mlflow_tracking_uri: str = Field(default="sqlite:///mlflow.db")
     mlflow_experiment_name: str = Field(default="retailrocket-recsys")
