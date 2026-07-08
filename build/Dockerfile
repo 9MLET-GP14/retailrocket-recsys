@@ -40,10 +40,28 @@ COPY --from=builder /opt/venv /opt/venv
 # Copia código-fonte, scripts e configurações
 COPY src/     ./src/
 COPY scripts/ ./scripts/
-COPY configs/ ./configs/
 COPY params.yaml ./
 
 # Diretórios de dados e modelos são montados via volume em runtime
 RUN mkdir -p data/raw data/processed models
 
 CMD ["python", "scripts/train.py"]
+
+
+# ── Stage 3: api — serving da API de recomendação ────────────────────────────
+FROM runtime AS api
+
+# Artefatos de inferência produzidos pelo pipeline (make repro)
+COPY models/best_model.pt ./models/
+COPY data/processed/encoders.pkl \
+     data/processed/interactions.parquet \
+     ./data/processed/
+
+RUN useradd --uid 1001 --create-home apiuser
+USER apiuser
+
+EXPOSE 6061
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
+    CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:6061/health')"]
+
+CMD ["uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "6061"]

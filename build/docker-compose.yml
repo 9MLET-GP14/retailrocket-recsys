@@ -1,9 +1,11 @@
+name: retailrocket-recsys
+
 services:
   # ── MLflow Tracking Server ──────────────────────────────────────────────────
   mlflow:
     image: ghcr.io/mlflow/mlflow:v3.13.0
     ports:
-      - "5000:5000"
+      - "127.0.0.1:6060:5000"
     volumes:
       - mlflow_data:/mlflow
     command: >
@@ -11,8 +13,8 @@ services:
       --host 0.0.0.0
       --port 5000
       --backend-store-uri sqlite:///mlflow/mlflow.db
-      --default-artifact-root /mlflow/artifacts
-      --allowed-hosts mlflow:5000,localhost:5000
+      --artifacts-destination /mlflow/artifacts
+      --allowed-hosts mlflow:5000,localhost:6060,127.0.0.1:6060
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 10s
@@ -23,19 +25,36 @@ services:
   # ── Training Job ────────────────────────────────────────────────────────────
   training:
     build:
-      context: .
+      context: ..
+      dockerfile: build/Dockerfile
       target: runtime
     volumes:
-      - ./data:/app/data
-      - ./models:/app/models
+      - ../data:/app/data
+      - ../models:/app/models
     env_file:
-      - .env
+      - ../.env
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
     depends_on:
       mlflow:
         condition: service_healthy
     command: python scripts/train.py
+
+  # ── Recommendation API ──────────────────────────────────────────────────────
+  api:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+      target: api
+    ports:
+      - "127.0.0.1:6061:6061"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:6061/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
   mlflow_data:

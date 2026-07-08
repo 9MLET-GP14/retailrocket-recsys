@@ -122,17 +122,17 @@ Todos os baselines são avaliados com as mesmas quatro métricas e o mesmo corte
 import torch
 from src.models.factory import ModelFactory, ModelType
 
-# Instanciar
+# O checkpoint é self-describing: carrega arquitetura + pesos
+ckpt = torch.load("models/best_model.pt", weights_only=True)
 model = ModelFactory.create(
     ModelType.EMBEDDING_MLP,
-    num_users=...,
-    num_items=...,
-    embedding_dim=64,
-    hidden_dims=[256, 128, 64],
+    num_users=ckpt["num_users"],
+    num_items=ckpt["num_items"],
+    embedding_dim=ckpt["embedding_dim"],
+    hidden_dims=ckpt["hidden_dims"],
+    dropout=ckpt["dropout"],
 )
-
-# Carregar pesos de um checkpoint local
-model.load_state_dict(torch.load("models/best_model.pt"))
+model.load_state_dict(ckpt["state_dict"])
 model.eval()
 
 # Pontuar um lote de pares (usuário, item)
@@ -157,10 +157,10 @@ O modelo é registrado com o nome **`retailrocket-embedding-mlp`**.
 
 ```bash
 # Após o treinamento, promova o melhor run para Production:
-python scripts/register_model.py
+python scripts/register_model.py   # ou: make register
 
 # Abra a interface do MLflow para inspecionar runs e o registro:
-mlflow ui
+make mlflow-up   # http://localhost:6060
 ```
 
 Ciclo de vida: `None → Staging → Production`
