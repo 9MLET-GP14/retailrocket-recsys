@@ -86,8 +86,8 @@ stages:
       size: 530593
     - path: scripts/train.py
       hash: md5
-      md5: cd7f7543b3b2263856349176fc00b37a
-      size: 4271
+      md5: de805cee7a2c9865e716b1c7c4aa08fb
+      size: 4544
     - path: src/models/dataset.py
       hash: md5
       md5: cbdf4dde74422955e6df935c44415241
@@ -116,8 +116,8 @@ stages:
     outs:
     - path: models/best_model.pt
       hash: md5
-      md5: ef652cc046ca367e1f6549ff3e61cafd
-      size: 16010594
+      md5: e5e67472f0d8609766ab537bee5ef35d
+      size: 16010722
   evaluate:
     cmd: python scripts/evaluate.py
     deps:
@@ -135,12 +135,12 @@ stages:
       size: 2591900
     - path: models/best_model.pt
       hash: md5
-      md5: ef652cc046ca367e1f6549ff3e61cafd
-      size: 16010594
+      md5: e5e67472f0d8609766ab537bee5ef35d
+      size: 16010722
     - path: scripts/evaluate.py
       hash: md5
-      md5: 962306470f970549535289ee66b6ebf7
-      size: 8116
+      md5: d1a28cef65bf00283f9d4f292d7fe4a3
+      size: 8083
     - path: src/evaluation/metrics.py
       hash: md5
       md5: 27a67b658d979263791854d4f6d28370
