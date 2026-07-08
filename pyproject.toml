@@ -24,6 +24,8 @@ dependencies = [
     "torch>=2.2",
     "yellowbrick>=1.5",
     "pyyaml>=6.0",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
 ]
 
 [project.optional-dependencies]
@@ -32,6 +34,7 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.4",
     "pre-commit>=3.7",
+    "httpx2>=2.5",
 ]
 jupyter = [
     "ipykernel>=6.29",
