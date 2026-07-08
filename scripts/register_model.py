@@ -35,13 +35,14 @@ def get_best_run_id(experiment_name: str, metric: str = "val_loss") -> str:
         raise ValueError(f"Experiment '{experiment_name}' not found.")
     runs = client.search_runs(
         experiment_ids=[experiment.experiment_id],
+        filter_string=f"status = 'FINISHED' and metrics.{metric} > 0",
         order_by=[f"metrics.{metric} ASC"],
         max_results=1,
     )
     if not runs:
         raise ValueError(
-            f"No runs found in experiment '{experiment_name}'. "
-            "Run scripts/train.py first."
+            f"No finished runs with '{metric}' found in experiment "
+            f"'{experiment_name}'. Run scripts/train.py first."
         )
     best = runs[0]
     run_id = best.info.run_id
