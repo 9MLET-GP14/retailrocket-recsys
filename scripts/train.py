@@ -139,7 +139,15 @@ def main() -> None:
     model = run_training(model, train_loader, val_loader, run_name="embedding_mlp")
 
     pathlib.Path("models").mkdir(exist_ok=True)
-    torch.save(model.state_dict(), "models/best_model.pt")
+    checkpoint = {
+        "state_dict": model.state_dict(),
+        "num_users": meta["num_users"],
+        "num_items": meta["num_items"],
+        "embedding_dim": params["embedding_dim"],
+        "hidden_dims": params["hidden_dims"],
+        "dropout": params["dropout"],
+    }
+    torch.save(checkpoint, "models/best_model.pt")
     logger.info("Best model saved to models/best_model.pt")
 
 

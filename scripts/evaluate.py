@@ -45,29 +45,28 @@ def load_test_data() -> tuple[dict, pd.DataFrame, pd.DataFrame]:
     return meta, train_df, test_df
 
 
-def load_model(
-    meta: dict, train_params: dict, device: torch.device
-) -> EmbeddingMLPRecommender:
-    """Reconstruct and load the saved EmbeddingMLPRecommender.
+def load_model(device: torch.device) -> EmbeddingMLPRecommender:
+    """Reconstruct the EmbeddingMLPRecommender from its checkpoint.
+
+    The checkpoint is self-describing: it carries the architecture
+    (dimensions, hidden layers, dropout) alongside the trained weights.
 
     Args:
-        meta: Metadata dict with num_users and num_items.
-        train_params: Training params for model architecture.
         device: Torch device for inference.
 
     Returns:
         Loaded model in eval mode.
     """
+    ckpt = torch.load("models/best_model.pt", map_location=device, weights_only=True)
     model: EmbeddingMLPRecommender = ModelFactory.create(  # type: ignore[assignment]
         ModelType.EMBEDDING_MLP,
-        num_users=meta["num_users"],
-        num_items=meta["num_items"],
-        embedding_dim=train_params["embedding_dim"],
-        hidden_dims=train_params["hidden_dims"],
-        dropout=train_params["dropout"],
+        num_users=ckpt["num_users"],
+        num_items=ckpt["num_items"],
+        embedding_dim=ckpt["embedding_dim"],
+        hidden_dims=ckpt["hidden_dims"],
+        dropout=ckpt["dropout"],
     )
-    state = torch.load("models/best_model.pt", map_location=device)
-    model.load_state_dict(state)
+    model.load_state_dict(ckpt["state_dict"])
     return model.to(device).eval()
 
 
@@ -236,7 +235,7 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     meta, train_df, test_df = load_test_data()
-    model = load_model(meta, all_params["train"], device)
+    model = load_model(device)
 
     comparison = evaluate_all(model, meta, train_df, test_df, eval_params, seed, device)
     logger.info("Results:\n%s", comparison.to_string())
