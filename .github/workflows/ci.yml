@@ -47,9 +47,11 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 30m
           script: |
+            set -e
             export PATH="$HOME/.local/bin:$PATH"
             cd ${{ secrets.VPS_APP_DIR }}
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             make install
             make data
             make repro
