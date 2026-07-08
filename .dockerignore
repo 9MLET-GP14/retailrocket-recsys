@@ -15,10 +15,13 @@ __pycache__/
 dist/
 build/
 
-# Dados e modelos (montados via volume em runtime)
+# Dados e modelos: apenas os artefatos de inferência entram na imagem da API
 data/raw/
-data/processed/
-models/
+data/processed/*
+!data/processed/encoders.pkl
+!data/processed/interactions.parquet
+models/*
+!models/best_model.pt
 mlruns/
 
 # Notebooks e análises

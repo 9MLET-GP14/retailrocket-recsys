@@ -40,5 +40,21 @@ services:
         condition: service_healthy
     command: python scripts/train.py
 
+  # ── Recommendation API ──────────────────────────────────────────────────────
+  api:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+      target: api
+    ports:
+      - "127.0.0.1:6061:6061"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:6061/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
 volumes:
   mlflow_data:
