@@ -1,4 +1,4 @@
-.PHONY: help install lock lint format test validate data repro train evaluate register lab mlflow-up mlflow-down docker docker-up docker-down clean
+.PHONY: help install lock lint format test validate data repro train evaluate register lab serve mlflow-up mlflow-down docker docker-up docker-down clean
 
 UV  ?= uv
 RUN := $(UV) run
@@ -16,12 +16,13 @@ help:
 	@echo "make evaluate    - run only the evaluation stage"
 	@echo "make register    - promote best run to Production in MLflow Registry"
 	@echo "make lab         - launch JupyterLab (notebooks/)"
+	@echo "make serve       - run the recommendation API locally on port 6061"
 	@echo "make mlflow-up   - start the MLflow server container (http://localhost:6060)"
 	@echo "make mlflow-down - stop the MLflow server container"
 	@echo "make docker      - build the Docker images"
-	@echo "make docker-up   - rebuild and start the containers"
+	@echo "make docker-up   - rebuild and start the serving containers (mlflow + api)"
 	@echo "make docker-down - stop and remove the containers"
-	@echo "make clean       - remove caches and build artifacts"
+	@echo "make clean       - full clean: caches, pipeline artifacts, containers, volumes and images"
 
 install:
 	$(UV) sync --extra dev
@@ -45,23 +46,26 @@ validate:
 data:
 	$(RUN) python scripts/download_data.py
 
-repro:
+repro: mlflow-up
 	$(RUN) dvc repro
 
-train:
+train: mlflow-up
 	$(RUN) python scripts/train.py
 
-evaluate:
+evaluate: mlflow-up
 	$(RUN) python scripts/evaluate.py
 
-register:
+register: mlflow-up
 	$(RUN) python scripts/register_model.py
 
 lab:
 	$(RUN) --extra jupyter jupyter lab
 
+serve:
+	$(RUN) uvicorn src.api.app:app --host 0.0.0.0 --port 6061 --reload
+
 mlflow-up:
-	docker compose -f build/docker-compose.yml up -d mlflow
+	docker compose -f build/docker-compose.yml up -d --wait mlflow
 
 mlflow-down:
 	docker compose -f build/docker-compose.yml stop mlflow
@@ -70,12 +74,15 @@ docker:
 	docker compose -f build/docker-compose.yml build
 
 docker-up:
-	docker compose -f build/docker-compose.yml up -d --build
+	docker compose -f build/docker-compose.yml up -d --build mlflow api
 
 docker-down:
 	docker compose -f build/docker-compose.yml down
 
 clean:
+	-docker compose -f build/docker-compose.yml down -v --rmi local --remove-orphans
 	rm -rf dist .pytest_cache .ruff_cache .coverage htmlcov
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -prune -not -path "./.venv/*" -exec rm -rf {} +
+	find data/processed models -type f ! -name '.gitkeep' -delete
+	rm -rf .dvc/cache
